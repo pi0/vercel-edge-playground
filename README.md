@@ -1,4 +1,4 @@
-Reproduction for vercel-edge global issue.
+Reproduction for vercel-edge global issue: https://github.com/pi0/vercel-edge-reproduction
 
 # Vercel-edge `globalThis` issue reproduction
 
