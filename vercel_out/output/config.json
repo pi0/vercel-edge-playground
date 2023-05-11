@@ -6,10 +6,6 @@
       "handle": "filesystem"
     },
     {
-      "src": "/__nuxt_error",
-      "dest": "/__nitro"
-    },
-    {
       "src": "/(.*)",
       "dest": "/__nitro"
     }
