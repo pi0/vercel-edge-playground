@@ -188,7 +188,7 @@ function getGlobal() {
 const _global = getGlobal();
 
 _global.process = _global.process || process$1;
-const process = _global.process;
+_global.process;
 
 function getDefaultExportFromCjs (x) {
 	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
@@ -2920,6 +2920,7 @@ function getRequestHeader(event, name) {
 }
 
 const RawBodySymbol = Symbol.for("h3RawBody");
+const ParsedBodySymbol = Symbol.for("h3ParsedBody");
 const PayloadMethods$1 = ["PATCH", "POST", "PUT", "DELETE"];
 function readRawBody(event, encoding = "utf8") {
   assertMethod(event, PayloadMethods$1);
@@ -2947,6 +2948,30 @@ function readRawBody(event, encoding = "utf8") {
   );
   const result = encoding ? promise.then((buff) => buff.toString(encoding)) : promise;
   return result;
+}
+async function readBody(event) {
+  if (ParsedBodySymbol in event.node.req) {
+    return event.node.req[ParsedBodySymbol];
+  }
+  const body = await readRawBody(event, "utf8");
+  if (event.node.req.headers["content-type"] === "application/x-www-form-urlencoded") {
+    const form = new URLSearchParams(body);
+    const parsedForm = /* @__PURE__ */ Object.create(null);
+    for (const [key, value] of form.entries()) {
+      if (key in parsedForm) {
+        if (!Array.isArray(parsedForm[key])) {
+          parsedForm[key] = [parsedForm[key]];
+        }
+        parsedForm[key].push(value);
+      } else {
+        parsedForm[key] = value;
+      }
+    }
+    return parsedForm;
+  }
+  const json = destr(body);
+  event.node.req[ParsedBodySymbol] = json;
+  return json;
 }
 
 function handleCacheHeaders(event, opts) {
@@ -6783,7 +6808,9 @@ function normalizeOutgoingHeaders(headers) {
 const globalRuntimeConfig = useRuntimeConfig();
 const index = eventHandler(async (event) => {
   const runtimeConfig = useRuntimeConfig(event);
+  const body = await readBody(event).catch(() => null);
   return {
+    body,
     globalRuntimeConfig: globalRuntimeConfig.test,
     runtimeConfig: runtimeConfig.test,
     process: process.env.NITRO_TEST
