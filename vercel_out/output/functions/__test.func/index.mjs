@@ -1,4 +1,6 @@
-import wasmModule from './wasm/sum.wasm';
+// import wasmModule from './wasm/sum.wasm';
+
+const wasmModule = await import('./wasm/sum.wasm').then(r => r.default)
 
 export default async function handler() {
   // const wasmModule = await import('./wasm/sum.wasm').then(r => r.default)
