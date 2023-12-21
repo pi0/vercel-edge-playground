@@ -1,5 +1,4 @@
 {
-  "name": "vercel-edge-repro",
   "private": true,
   "scripts": {
     "build": "cp -r vercel_out/* .vercel"

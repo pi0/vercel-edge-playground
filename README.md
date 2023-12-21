@@ -1,1 +1,1 @@
-Generic template to make vercel edge function reproductions
+Generic template to play with vercel edge functions
